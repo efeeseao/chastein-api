@@ -10,7 +10,7 @@
     "ecmaVersion": "latest"
   },
   "rules": {
-    "no-console": "error",
+    "no-console": "off",
     "no-undef": "off"
   }
 }

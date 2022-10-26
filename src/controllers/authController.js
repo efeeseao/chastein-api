@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt')
-const jwt = require('jwt')
+const jwt = require('jsonwebtoken')
 
 const login = async (request, response) => {
   const { password, username } = request.body

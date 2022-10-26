@@ -12,6 +12,7 @@ const connectDB = require('./config/dbConnection')
 const root = require('./routes/root')
 const userRoutes = require('./routes/userRoutes')
 const noteRoutes = require('./routes/noteRoutes')
+const authRoutes = require('./routes/authRoutes')
 
 const PORT = process.env.PORT || 3333
 
@@ -28,6 +29,7 @@ app.use(cookieParser())
 app.use('/', express.static(path.join(__dirname, '../public')))
 
 app.use('/', root)
+app.use('/auth', authRoutes)
 app.use('/users', userRoutes)
 app.use('/notes', noteRoutes)
 

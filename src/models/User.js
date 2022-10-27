@@ -8,7 +8,10 @@ const userSchema = new mongoose.Schema({
 
   email: {
     type: String,
-    required: true
+    required: true,
+    unique:true,
+    trim: true,
+    lowercase:true
   },
 
   password: {
@@ -16,12 +19,10 @@ const userSchema = new mongoose.Schema({
     required: true
   },
 
-  roles: [
-    {
-      type: String,
-      default: 'employee'
-    }
-  ],
+  roles: {
+      type: [String],
+      default: ['employee']
+  },
 
   active: {
     type: Boolean,

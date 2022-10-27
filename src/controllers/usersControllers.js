@@ -32,7 +32,7 @@ const createNewUser = async (request, response) => {
   const hashedPassword = await bcrypt.hash(password, 12)
 
   const userObject = (!Array.isArray(roles) || !roles.length)
-    ? { username, "password": hashedPassword, email }
+    ? { username, "password": hashedPassword, email, roles }
     : { username, "password": hashedPassword, roles, email }
 
   const user = await User.create(userObject)

@@ -4,10 +4,10 @@ const jwt = require('jsonwebtoken')
 const User = require('../models/User')
 
 const login = async (request, response) => {
-  const { password, username } = request.body
+  const { username, password } = request.body
 
-  if (!password || !username) {
-    return response.status(400).json({ message: 'All fields are required'})
+  if (!username || !password) {
+    return response.status(400).json({ message: 'All fields are required' })
   }
 
   const foundUser = await User.findOne({ username }).exec()
@@ -28,43 +28,44 @@ const login = async (request, response) => {
       }
     },
     process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: '20m' }
-  )
+    { expiresIn: '18m' }
+    )
 
-  const refreshToken = jwt.sign(
-    { "username": foundUser.username },
-    process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: '7d' }
-  )
+    const refreshToken = jwt.sign(
+      { "username": foundUser.username },
+      process.env.REFRESH_TOKEN_SECRET,
+      { expiresIn: '7d' }
+    )
 
-  response.cookie('jwt', refreshToken, {
-    httpOnly: true, //accessible only by web server 
-    secure: true, //https
-    sameSite: 'None', //cross-site cookie 
-    maxAge: 7 * 24 * 60 * 60 * 1000 //cookie expiry: set to match rT
-  })
+    // Create secure cookie with refresh token 
+    response.cookie('jwt', refreshToken, {
+      httpOnly: true, //accessible only by web server 
+      secure: true, //https
+      sameSite: 'None', //cross-site cookie 
+      maxAge: 7 * 24 * 60 * 60 * 1000 //cookie expiry: set to match rT
+    })
 
-  // Send accessToken containing username and roles 
-  response.json({ accessToken })
+    // Send accessToken containing username and roles 
+    response.json({ accessToken })
 }
 
 const refresh = (request, response) => {
   const cookies = request.cookies
 
-  if (!cookies?.jwt) return response.status(401).json({ messaege: 'Unauthorized'})
+  if (!cookies?.jwt) return response.status(401).json({ message: 'Unauthorized' })
 
   const refreshToken = cookies.jwt
 
   jwt.verify(
     refreshToken,
     process.env.REFRESH_TOKEN_SECRET,
+    
     async (error, decoded) => {
-      
-      if (!error) return response.status(403).json({ message: 'Forbidden'})
+      if (error) return response.status(403).json({ message: 'Forbidden' })
 
       const foundUser = await User.findOne({ username: decoded.username }).exec()
 
-      if (!foundUser) return response.status(401).json({ messaege: 'Unauthorized' })
+        if (!foundUser) return res.status(401).json({ message: 'Unauthorized' })
 
       const accessToken = jwt.sign(
         {
@@ -72,10 +73,9 @@ const refresh = (request, response) => {
             "username": foundUser.username,
             "roles": foundUser.roles
           }
-        },
-        
+      },
         process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: '15m' }
+        { expiresIn: '18m' }
       )
 
       response.json({ accessToken })
@@ -85,14 +85,15 @@ const refresh = (request, response) => {
 
 const logout = (request, response) => {
   const cookies = request.cookies
-
   if (!cookies?.jwt) return response.sendStatus(204)
+
   response.clearCookie('jwt', { httpOnly: true, sameSite: 'None', secure: true })
+    
   response.json({ message: 'Cookie cleared' })
 }
 
 module.exports = {
   login,
-  logout,
-  refresh
+  refresh,
+  logout
 }

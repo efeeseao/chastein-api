@@ -1,11 +1,14 @@
 const mongoose = require('mongoose')
 
+// Is not recommended
+const DB = process.env.DATABASE_URI || 'mongodb+srv://buzzcode:OL6ko8V7yvjolOMo@cluster0.4xbbdqm.mongodb.net/?retryWrites=true&w=majority'
+
 const connectDB = async () => {
- mongoose.connect(process.env.DATABASE_URI).then(() => {
-  console.log('Database Connected')
- }).catch(() => {
-  console.log('Database Not Connected')
- })
+  try {
+    await mongoose.connect(DB)
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 module.exports = connectDB
